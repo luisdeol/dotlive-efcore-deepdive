@@ -7,9 +7,10 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("StoreCs");
+
 builder.Services.AddDbContext<StoreDbContext>(o =>
-    o.UseInMemoryDatabase("StoreDb"));
-    //o.UseSqlServer("Server=localhost,1433;Database=StoreDb;User ID=sa;Password=MyPass@word"));
+    o.UseSqlServer(connectionString));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -53,20 +54,29 @@ app.MapPost("/api/categories", (CategoryInputModel model, StoreDbContext db) =>
     return Results.Ok(category.Id);
 });
 
-// Atualizar todos produtos de category
-app.MapPut("/api/products", (Guid categoryId, StoreDbContext db) =>
+// Testando Overriding SaveChanges
+app.MapPut("/api/products/{id}", (Guid id, ProductInputModel model, StoreDbContext db) =>
 {
-    db.Products
-        .Where(p => p.IdCategory == categoryId)
-        .ExecuteUpdate(s => s.SetProperty(p => p.IsDeleted, false));
+    var product = db.Products.SingleOrDefault(p => p.Id == id);
+
+    if (product is null)
+        return Results.NotFound();
+
+    product.Update(model.Title, model.Description, model.Price);
+
+    db.SaveChanges();
 
     return Results.NoContent();
 });
 
 
-// Deletar todos produtos de category
+// ExecuteUpdate / ExecuteDelete
 app.MapDelete("/api/products", (Guid categoryId, StoreDbContext db) =>
 {
+    //db.Products
+    //    .Where(p => p.IdCategory == categoryId)
+    //    .ExecuteUpdate(s => s.SetProperty(p => p.IsDeleted, true));
+
     db.Products
         .Where(p => p.IdCategory == categoryId)
         .ExecuteDelete();
@@ -74,46 +84,19 @@ app.MapDelete("/api/products", (Guid categoryId, StoreDbContext db) =>
     return Results.NoContent();
 });
 
-
-// Transação
+// Owned Types
 app.MapPost("/api/products", (StoreDbContext db, ProductInputModel model) =>
 {
-    var product = new Product(model.Title, model.Description, model.Price, model.IdCategory);
 
-    /*using var transaction = db.Database.BeginTransaction();
+    var manufacturer = new Manufacturer("Fabricante A", DateTime.Now.AddYears(-1), "Rua ABC");
+    var product = new Product(model.Title, model.Description, model.Price, model.IdCategory, manufacturer);
 
-    try
-    {*/
-        db.Products.Add(product);
-        
+    db.Products.Add(product);
 
-        var categoryAleatoria = new Category("Teste");
-        
-        db.SaveChanges();
-        
-        // E se precisar reutilizar o Id de Category?
-        
-       /* transaction.Commit();
-    }
-    catch (Exception)
-    {
-        
-    }
-*/
-    return Results.Created("/api/products", product);
+    db.SaveChanges();
+
+    return Results.Created("/api/products", model);
 });
 
 
-// Configuração normal
-
-// Configuração BaseEntity Ids
-
-// Global Query Filters
-
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
