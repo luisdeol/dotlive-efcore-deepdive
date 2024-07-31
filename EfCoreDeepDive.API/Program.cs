@@ -30,18 +30,11 @@ app.UseHttpsRedirection();
 
 
 // Paginação
-app.MapGet("/api/products", (StoreDbContext db, int page = 0, int size = 20) =>
+app.MapGet("/api/products", (StoreDbContext db) =>
 {
     var products = db.Products.ToList();
-    var totalRecords = db.Products.Count();
 
-    var pagedProducts = new PagedProducts(products, page, size, totalRecords);
-    
-    return Results.Ok(new
-    {
-        products,
-        pagedProducts
-    });
+    return Results.Ok(products);
 });
 
 app.MapPost("/api/categories", (CategoryInputModel model, StoreDbContext db) =>
@@ -73,23 +66,19 @@ app.MapPut("/api/products/{id}", (Guid id, ProductInputModel model, StoreDbConte
 // ExecuteUpdate / ExecuteDelete
 app.MapDelete("/api/products", (Guid categoryId, StoreDbContext db) =>
 {
-    //db.Products
-    //    .Where(p => p.IdCategory == categoryId)
-    //    .ExecuteUpdate(s => s.SetProperty(p => p.IsDeleted, true));
+    var products = db.Products.Where(p => p.IdCategory == categoryId).ToList();
 
-    db.Products
-        .Where(p => p.IdCategory == categoryId)
-        .ExecuteDelete();
+    foreach (var product in products)
+        product.IsDeleted = true;
+
+    db.SaveChanges();
 
     return Results.NoContent();
 });
 
-// Owned Types
 app.MapPost("/api/products", (StoreDbContext db, ProductInputModel model) =>
 {
-
-    var manufacturer = new Manufacturer("Fabricante A", DateTime.Now.AddYears(-1), "Rua ABC");
-    var product = new Product(model.Title, model.Description, model.Price, model.IdCategory, manufacturer);
+    var product = new Product(model.Title, model.Description, model.Price, model.IdCategory);
 
     db.Products.Add(product);
 
