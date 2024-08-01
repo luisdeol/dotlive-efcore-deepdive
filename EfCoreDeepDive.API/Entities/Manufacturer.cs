@@ -1,16 +1,16 @@
 ﻿namespace EfCoreDeepDive.API.Entities
 {
-        public class Manufacturer
+    public class Manufacturer
+    {
+        public Manufacturer(string manufacturerName, DateTime productionDate, string producerFullAddress)
         {
-            public Manufacturer(string name, DateTime productionDate, string productFullAddress)
-            {
-                Name = name;
-                ProductionDate = productionDate;
-                ProductFullAddress = productFullAddress;
-            }
-
-            public string Name { get; set; }
-            public DateTime ProductionDate { get; set; }
-            public string ProductFullAddress { get; set; }
+            ManufacturerName = manufacturerName;
+            ProductionDate = productionDate;
+            ProducerFullAddress = producerFullAddress;
         }
+
+        public string ManufacturerName { get; set; }
+        public DateTime ProductionDate { get; set; }
+        public string ProducerFullAddress { get; set; }
+    }
 }

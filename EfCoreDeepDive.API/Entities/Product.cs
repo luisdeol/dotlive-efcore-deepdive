@@ -5,12 +5,13 @@ namespace EfCoreDeepDive.API.Entities;
 public class Product : BaseEntity
 {
     protected Product() { }
-    public Product(string title, string description, decimal price, Guid idCategory)
+    public Product(string title, string description, decimal price, Guid idCategory, Manufacturer manufacturer)
     {
         Title = title;
         Description = description;
         Price = price;
         IdCategory = idCategory;
+        Manufacturer = manufacturer;
     }
     
     public string Title { get; private set; }
