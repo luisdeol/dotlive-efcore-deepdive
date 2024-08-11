@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EfCoreDeepDive.API.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class FistMigration : Migration
+    public partial class BaseMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

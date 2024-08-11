@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EfCoreDeepDive.API.Persistence.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    [Migration("20240731234253_FistMigration")]
-    partial class FistMigration
+    [Migration("20240811184124_BaseMigration")]
+    partial class BaseMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

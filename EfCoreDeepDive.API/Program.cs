@@ -30,19 +30,11 @@ app.UseHttpsRedirection();
 
 
 // Paginação
-app.MapGet("/api/products", (StoreDbContext db, int page = 0, int size = 3) =>
+app.MapGet("/api/products", (StoreDbContext db) =>
 {
-    var products = db.Products
-        .Skip(size * page)
-        .Take(size)
-        //.IgnoreQueryFilters()
-        .ToList();
+    var products = db.Products.ToList();
 
-    var totalRecords = db.Products.Count();
-
-    var pagedProducts = new PagedProducts(products, page, size, totalRecords);
-
-    return Results.Ok(pagedProducts);
+    return Results.Ok(products);
 });
 
 app.MapPost("/api/categories", (CategoryInputModel model, StoreDbContext db) =>
@@ -74,30 +66,21 @@ app.MapPut("/api/products/{id}", (Guid id, ProductInputModel model, StoreDbConte
 // ExecuteUpdate / ExecuteDelete
 app.MapDelete("/api/products", (Guid categoryId, StoreDbContext db) =>
 {
-    //var products = db.Products.Where(p => p.IdCategory == categoryId).ToList();
+    var products = db.Products.Where(p => p.IdCategory == categoryId).ToList();
 
-    //db.Products.RemoveRange(products);
+    db.Products.RemoveRange(products);
 
-    //foreach (var product in products)
-    //    product.IsDeleted = true;
+    foreach (var product in products)
+        product.IsDeleted = true;
 
-    // db.SaveChanges();
-
-    db.Products
-       .Where(p => p.IdCategory == categoryId)
-       .ExecuteDelete();
-
-    db.Products
-        .Where(p => p.IdCategory == categoryId)
-        .ExecuteUpdate(s => s.SetProperty(p => p.IsDeleted, true));
+    db.SaveChanges();
 
     return Results.NoContent();
 });
 
 app.MapPost("/api/products", (StoreDbContext db, ProductInputModel model) =>
 {
-    var manufacturer = new Manufacturer("Samsung", DateTime.Now.AddYears(-2), "Endereço ABC");
-    var product = new Product(model.Title, model.Description, model.Price, model.IdCategory, manufacturer);
+    var product = new Product(model.Title, model.Description, model.Price, model.IdCategory);
 
     db.Products.Add(product);
 

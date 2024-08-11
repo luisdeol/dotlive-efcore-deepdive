@@ -90,37 +90,7 @@ namespace EfCoreDeepDive.API.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("EfCoreDeepDive.API.Entities.Manufacturer", "Manufacturer", b1 =>
-                        {
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("ManufacturerName")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("ManufacturerName");
-
-                            b1.Property<string>("ProducerFullAddress")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("ProducerFullAddress");
-
-                            b1.Property<DateTime>("ProductionDate")
-                                .HasColumnType("datetime2")
-                                .HasColumnName("ProductionDate");
-
-                            b1.HasKey("ProductId");
-
-                            b1.ToTable("Products");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-                        });
-
                     b.Navigation("Category");
-
-                    b.Navigation("Manufacturer")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EfCoreDeepDive.API.Entities.Category", b =>
