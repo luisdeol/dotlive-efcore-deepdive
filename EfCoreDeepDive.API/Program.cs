@@ -30,11 +30,18 @@ app.UseHttpsRedirection();
 
 
 // Paginação
-app.MapGet("/api/products", (StoreDbContext db) =>
+app.MapGet("/api/products", (StoreDbContext db, int page = 0, int size = 2) =>
 {
-    var products = db.Products.ToList();
+    var products = db.Products
+        .Skip(size * page)
+        .Take(size)
+        .ToList();
 
-    return Results.Ok(products);
+    var totalRecords = db.Products.Count();
+
+    var pagedProducts = new PagedResult<Product>(products, page, size, totalRecords);
+
+    return Results.Ok(pagedProducts);
 });
 
 app.MapPost("/api/categories", (CategoryInputModel model, StoreDbContext db) =>
